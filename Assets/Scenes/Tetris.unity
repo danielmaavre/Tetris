@@ -903,7 +903,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40f6a4fd247f9354e9d00feed7e8adb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Piece
-  moveDelay: 0.2
+  moveDelay: 0.1
 --- !u!114 &2024020252
 MonoBehaviour:
   m_ObjectHideFlags: 0

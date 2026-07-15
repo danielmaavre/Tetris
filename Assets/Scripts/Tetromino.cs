@@ -22,9 +22,13 @@ public struct TetrominoData
     //a field into a property public ***Vector2Int[] cells{get; private set;}***
     public Vector2Int[] cells;
 
+    //Adds the wallkicks for each piece
+    public Vector2Int[,] wallKicks {get; private set;}
+
     //Assigns the static data to our cells
     public void Initialize()
     {
         this.cells = Data.Cells[this.tetromino];
+        this.wallKicks = Data.WallKicks[this.tetromino];
     }
 }
