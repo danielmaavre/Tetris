@@ -15,96 +15,130 @@ public class Piece : MonoBehaviour
     public int rotationIndex {get; private set;}
 
     [SerializeField] private float moveDelay = 0.15f;
-    private float moveTimer;
+    [SerializeField] private float stepDelay = 1f;
+    [SerializeField] private float lockDelay = 0.5f;
+    private float stepTime;
+    private float lockTime;
+    private float moveTime;    
 
     public void Initialize(Board board, Vector3Int position, TetrominoData data)
     {
+        this.data = data;
         this.board = board;
         this.position = position;
-        this.data = data;
-        this.rotationIndex = 0;
+        
+        rotationIndex = 0;
+        stepTime = Time.time + stepDelay;
+        moveTime = Time.time + moveDelay;
+        lockTime = 0f;
 
-        if (this.cells == null)
+        if (cells == null)
         {
-            this.cells = new Vector3Int[data.cells.Length];
+            cells = new Vector3Int[data.cells.Length];
         }
 
         for (int i = 0; i < data.cells.Length; i++)
         {
-            this.cells[i] = (Vector3Int)data.cells[i];
+            cells[i] = (Vector3Int)data.cells[i];
         }
     }
 
     private void Update()
     {
+        board.Clear(this);
+
+        //Allows to adjust the piece before it locks in place
+        lockTime += Time.time;
+
         //Piece rotation Q: Left E: Right
-        if (Keyboard.current.qKey.wasPressedThisFrame)
-        {
-            this.board.Clear(this);
+        if (Keyboard.current.qKey.wasPressedThisFrame){
             Rotate(-1);                
-        } 
-        else if (Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            this.board.Clear(this);
+        } else if (Keyboard.current.eKey.wasPressedThisFrame){
             Rotate(1);
-        }        
+        }     
 
-        moveTimer += Time.deltaTime;
-        if (moveTimer >= moveDelay)
+        //Hard drop
+        if (Keyboard.current.spaceKey.wasPressedThisFrame){
+            HardDrop();
+        }              
+
+        //Allows horizontal movement A: Left, D: Right. Times
+        //every movement to control movement speed
+        if (Time.time >= moveTime)
         {
-            moveTimer = 0f;
-            this.board.Clear(this);
+            HandleMoveInputs();
+        }
 
-            //Horizontal movement a: Left d: Right
-            if (Keyboard.current.aKey.isPressed)
-            {
-                Move(Vector2Int.left);
+        //Advance the piece to the next row
+        if(Time.time >= stepTime){
+            Step();
+        }
+
+        board.Set(this);
+    }
+
+    private void HandleMoveInputs()
+    {
+        //Horizontal movement a: Left d: Right
+        if (Keyboard.current.aKey.isPressed){
+            Move(Vector2Int.left);
+        }else if (Keyboard.current.dKey.isPressed){
+            Move(Vector2Int.right);
+        }
+
+        //Vertical movement
+        if (Keyboard.current.sKey.isPressed){
+            if (Move(Vector2Int.down)){
+                //Updates stepTime to prevent double movement
+                stepTime = Time.time + stepDelay;
             }
-            else if (Keyboard.current.dKey.isPressed)
-            {
-                Move(Vector2Int.right);
-            }
+        }
+    }
 
-            //Vertical movement
-            if (Keyboard.current.sKey.isPressed)
-            {
-                Move(Vector2Int.down);
-            }   
+    private void Step()
+    {
+        stepTime = Time.time + stepDelay;
 
-            //Hard drop
-            if (Keyboard.current.spaceKey.isPressed)
-            {
-                HardDrop();
-            }    
-            this.board.Set(this);
-        }        
+        //Steps down a row
+        Move(Vector2Int.down);
+
+        //If the piece is inactive locks in place
+        if (lockTime >= lockDelay){
+            Lock();
+        }
+    }
+
+    private void Lock()
+    {
+        board.Set(this);
+        board.SpawnPiece();
     }
 
     //Applies the rotation matrix to each piece and rotates its position by 90 degrees
     private void Rotate(int direction)
     {
-        int originalRotation = this.rotationIndex;
-        this.rotationIndex = Wrap(this.rotationIndex + direction, 4);
+        int originalRotation = rotationIndex;
+        rotationIndex = Wrap(rotationIndex + direction, 4);
         // Debug.Log(this.rotationIndex);
 
         ApplyRotationMatrix(direction);
 
-        if (!TestWallKicks(this.rotationIndex, direction))
+        if (!TestWallKicks(rotationIndex, direction))
         {
-            this.rotationIndex = originalRotation;
+            rotationIndex = originalRotation;
             ApplyRotationMatrix(-direction);
         }
     }
 
     private void ApplyRotationMatrix(int direction)
     {
-        for (int i = 0; i < this.cells.Length; i++)
+        for (int i = 0; i < cells.Length; i++)
         {
-            Vector3 cell = this.cells[i];
+            Vector3 cell = cells[i];
 
             int x, y;
 
-            switch (this.data.tetromino)
+            switch (data.tetromino)
             {
                 case Tetromino.I:
                 case Tetromino.O:
@@ -120,7 +154,7 @@ public class Piece : MonoBehaviour
                     break;
             }
 
-            this.cells[i] = new Vector3Int(x,y,0);
+            cells[i] = new Vector3Int(x,y,0);
         }        
     }
 
@@ -128,9 +162,9 @@ public class Piece : MonoBehaviour
     {
         int wallkickIdx = GetWallKickIdx(rotationIndex, rotationDirection);
 
-        for (int i = 0; i < this.data.wallKicks.GetLength(1); i++)
+        for (int i = 0; i < data.wallKicks.GetLength(1); i++)
         {
-            Vector2Int translation = this.data.wallKicks[wallkickIdx,i];
+            Vector2Int translation = data.wallKicks[wallkickIdx,i];
 
             if (Move(translation))
             {
@@ -148,7 +182,7 @@ public class Piece : MonoBehaviour
         {
             wallkickIdx--;
         }
-        return Wrap(wallkickIdx, this.data.wallKicks.GetLength(0));
+        return Wrap(wallkickIdx, data.wallKicks.GetLength(0));
     }
 
     public int Wrap(int value, int validPositions)
@@ -159,23 +193,28 @@ public class Piece : MonoBehaviour
     //Hard drops a piece
     private void HardDrop()
     {
-        while (Move(Vector2Int.down))
-        {
+        //Drops the piece to the bottom of the screen
+        while (Move(Vector2Int.down)){
             continue;
         }
+
+        //Locks the piece in place when it reaches the bottom
+        Lock();
     }
 
     private bool Move(Vector2Int translation)
     {
-        Vector3Int newPosition = this.position;
+        Vector3Int newPosition = position;
         newPosition.x += translation.x;
         newPosition.y += translation.y;
 
-        bool isValid = this.board.IsValidPosition(this, newPosition);
+        bool isValid = board.IsValidPosition(this, newPosition);
 
         if (isValid)
         {
-            this.position = newPosition;
+            position = newPosition;
+            moveTime = Time.time + moveDelay;
+            lockTime = 0f;
         }
 
         return isValid;
