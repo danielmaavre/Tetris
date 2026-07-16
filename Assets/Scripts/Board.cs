@@ -33,7 +33,6 @@ public class Board : MonoBehaviour
 
     private void Start()
     {
-        ScoreManager.Instance.AddScore(100);
         SpawnPiece();
     }
 
@@ -58,6 +57,8 @@ public class Board : MonoBehaviour
     private void GameOver()
     {
         this.tilemap.ClearAllTiles();
+        ScoreManager.scoreManager.ClearScore();
+        LevelManager.levelManager.LevelReset();
     }
 
     public void Set(Piece piece)
@@ -106,18 +107,22 @@ public class Board : MonoBehaviour
     {
         RectInt bounds = this.Bounds;
         int row = bounds.yMin;
+        int rowsCleared = 0;
 
         while (row < bounds.yMax)
         {
             if (IsLineFull(row))
             {
                 LineClear(row);
+                rowsCleared++;                
             }
             else
             {
                 row++;
             }
         }
+
+        ScoreManager.scoreManager.AddScore(0, rowsCleared);
     }  
 
     private bool IsLineFull(int row)

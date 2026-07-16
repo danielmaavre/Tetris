@@ -15,7 +15,6 @@ public class Piece : MonoBehaviour
     public int rotationIndex {get; private set;}
 
     [SerializeField] private float moveDelay = 0.15f;
-    [SerializeField] private float stepDelay = 1f;
     [SerializeField] private float lockDelay = 0.5f;
     private float stepTime;
     private float lockTime;
@@ -28,7 +27,7 @@ public class Piece : MonoBehaviour
         this.position = position;
         
         rotationIndex = 0;
-        stepTime = Time.time + stepDelay;
+        stepTime = Time.time + LevelManager.levelManager.StepDelay;
         moveTime = Time.time + moveDelay;
         lockTime = 0f;
 
@@ -90,14 +89,14 @@ public class Piece : MonoBehaviour
         if (Keyboard.current.sKey.isPressed){
             if (Move(Vector2Int.down)){
                 //Updates stepTime to prevent double movement
-                stepTime = Time.time + stepDelay;
+                stepTime = Time.time + LevelManager.levelManager.StepDelay;
             }
         }
     }
 
     private void Step()
     {
-        stepTime = Time.time + stepDelay;
+        stepTime = Time.time + LevelManager.levelManager.StepDelay;
 
         //Steps down a row
         Move(Vector2Int.down);
