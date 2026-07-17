@@ -40,7 +40,8 @@ public class LevelManager : MonoBehaviour
 
     public void LevelReset()
     {
-        UpdateCurrentLevel(1);
+        currentLevel = 1;
+        UpdateCurrentLevel(currentLevel);
         UpdateStepDelay();
     }
 

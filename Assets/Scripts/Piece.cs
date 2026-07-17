@@ -27,8 +27,8 @@ public class Piece : MonoBehaviour
         this.position = position;
         
         rotationIndex = 0;
-        stepTime = Time.time + LevelManager.levelManager.StepDelay;
-        moveTime = Time.time + moveDelay;
+        // stepTime = Time.deltaTime;
+        // moveTime = Time.deltaTime;
         lockTime = 0f;
 
         if (cells == null)
@@ -47,7 +47,7 @@ public class Piece : MonoBehaviour
         board.Clear(this);
 
         //Allows to adjust the piece before it locks in place
-        lockTime += Time.time;
+        lockTime += Time.deltaTime;
 
         //Piece rotation Q: Left E: Right
         if (Keyboard.current.qKey.wasPressedThisFrame){
@@ -60,17 +60,21 @@ public class Piece : MonoBehaviour
         if (Keyboard.current.spaceKey.wasPressedThisFrame){
             HardDrop();
         }              
-
+        
+        moveTime += Time.deltaTime;
         //Allows horizontal movement A: Left, D: Right. Times
         //every movement to control movement speed
-        if (Time.time >= moveTime)
+        if (moveTime >= moveDelay)
         {
             HandleMoveInputs();
+            moveTime = 0f;
         }
 
+        stepTime += Time.deltaTime;
         //Advance the piece to the next row
-        if(Time.time >= stepTime){
+        if(stepTime >= LevelManager.levelManager.StepDelay){
             Step();
+            stepTime = 0;
         }
 
         board.Set(this);
@@ -89,14 +93,14 @@ public class Piece : MonoBehaviour
         if (Keyboard.current.sKey.isPressed){
             if (Move(Vector2Int.down)){
                 //Updates stepTime to prevent double movement
-                stepTime = Time.time + LevelManager.levelManager.StepDelay;
+                stepTime = Time.deltaTime;
             }
         }
     }
 
     private void Step()
     {
-        stepTime = Time.time + LevelManager.levelManager.StepDelay;
+        // stepTime = Time.time + LevelManager.levelManager.StepDelay;
 
         //Steps down a row
         Move(Vector2Int.down);
