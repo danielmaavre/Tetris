@@ -28,7 +28,7 @@ public struct TetrominoData
     //Assigns the static data to our cells
     public void Initialize()
     {
-        this.cells = Data.Cells[this.tetromino];
-        this.wallKicks = Data.WallKicks[this.tetromino];
+        cells = Data.Cells[tetromino];
+        wallKicks = Data.WallKicks[tetromino];
     }
 }

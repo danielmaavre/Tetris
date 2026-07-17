@@ -44,6 +44,9 @@ public class Piece : MonoBehaviour
 
     private void Update()
     {
+        //Locks the movement of the piece during the line clearing animation
+        if (board.IsClearingLines) return;
+        
         board.Clear(this);
 
         //Allows to adjust the piece before it locks in place
@@ -59,6 +62,7 @@ public class Piece : MonoBehaviour
         //Hard drop
         if (Keyboard.current.spaceKey.wasPressedThisFrame){
             HardDrop();
+            if (board.IsClearingLines) return;
         }              
         
         moveTime += Time.deltaTime;
@@ -75,6 +79,7 @@ public class Piece : MonoBehaviour
         if(stepTime >= LevelManager.levelManager.StepDelay){
             Step();
             stepTime = 0;
+            if (board.IsClearingLines) return;
         }
 
         board.Set(this);
@@ -113,8 +118,19 @@ public class Piece : MonoBehaviour
 
     private void Lock()
     {
+        board.Clear(this);
         board.Set(this);
-        board.ClearLines();
+
+        if(Ghost.ghostPiece != null)
+        {
+            Ghost.ghostPiece.Clear();
+        }
+
+        board.ClearLines(SpawnNext);
+    }
+
+    private void SpawnNext()
+    {
         board.SpawnPiece();
     }
 

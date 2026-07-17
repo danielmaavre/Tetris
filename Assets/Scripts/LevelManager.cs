@@ -8,9 +8,10 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private int baseLevelupPoints = 800;
 
     public float StepDelay{get; private set;}
+    public int currentLevel{get; private set;}
 
     public static LevelManager levelManager;
-    private int currentLevel;
+    
 
     private void Awake()
     {

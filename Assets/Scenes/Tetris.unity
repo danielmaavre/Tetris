@@ -182,7 +182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelManager
   currentLevelTMP: {fileID: 1144111142}
-  baseLevelupPoints: 10
+  baseLevelupPoints: 800
 --- !u!1 &242957493
 GameObject:
   m_ObjectHideFlags: 0
@@ -1647,6 +1647,8 @@ MonoBehaviour:
   - tetromino: 6
     tile: {fileID: 11400000, guid: 0551aac46c6ab834a8a4925d20d7881f, type: 2}
     cells: []
+  blinkCount: 3
+  blinkInterval: 0.1
   spawnPosition: {x: -1, y: 8, z: 0}
   boardSize: {x: 10, y: 20}
 --- !u!156049354 &2024020253
