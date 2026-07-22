@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 public class Piece : MonoBehaviour
 {
-    public Board board {get; private set;}
+    public Board board {get; private set;}    
     public TetrominoData data {get; private set;}
     public Vector3Int position {get; private set;}
     public Vector3Int[] cells {get; private set;}
@@ -16,9 +16,11 @@ public class Piece : MonoBehaviour
 
     [SerializeField] private float moveDelay = 0.15f;
     [SerializeField] private float lockDelay = 0.5f;
+    [SerializeField] private HoldSpace holdSpace;
     private float stepTime;
     private float lockTime;
     private float moveTime;    
+    private bool usedHeld;
 
     public void Initialize(Board board, Vector3Int position, TetrominoData data)
     {
@@ -52,6 +54,13 @@ public class Piece : MonoBehaviour
         //Allows to adjust the piece before it locks in place
         lockTime += Time.deltaTime;
 
+        //Hold piece
+        if (Keyboard.current.hKey.wasPressedThisFrame && !usedHeld)
+        {
+            holdSpace.HoldPiece(this);
+            usedHeld = true;
+        }
+
         //Piece rotation Q: Left E: Right
         if (Keyboard.current.qKey.wasPressedThisFrame){
             Rotate(-1);                
@@ -82,7 +91,7 @@ public class Piece : MonoBehaviour
             if (board.IsClearingLines) return;
         }
 
-        board.Set(this);
+        board.Set(this);        
     }
 
     private void HandleMoveInputs()
@@ -127,6 +136,7 @@ public class Piece : MonoBehaviour
         }
 
         board.ClearLines(SpawnNext);
+        usedHeld = false;
     }
 
     private void SpawnNext()
