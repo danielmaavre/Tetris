@@ -16,9 +16,8 @@ public class Board : MonoBehaviour
     [SerializeField] private int blinkCount = 3;
     [SerializeField] private float blinkInterval = 0.1f;
 
-    public Vector3Int spawnPosition;
+    public Vector3Int defaultSpawnPosition = new(-1,8,0);
     public Vector2Int boardSize = new(10,20);
-
     private Dictionary<Vector3Int, TileBase> cachedTiles = new();
 
     public RectInt Bounds
@@ -43,13 +42,12 @@ public class Board : MonoBehaviour
 
     private void Start()
     {
-        SpawnPiece();
+        SpawnPiece(defaultSpawnPosition);
     }
 
-    public void SpawnPiece()
+    public void SpawnPiece(Vector3Int spawnPosition, TetrominoData? heldPiece = null)
     {
-        int random = UnityEngine.Random.Range(0,tetrominoes.Length);
-        TetrominoData data = tetrominoes[random];
+        TetrominoData data = heldPiece ?? tetrominoes[UnityEngine.Random.Range(0,tetrominoes.Length)];
 
         ActivePiece.Initialize(this, spawnPosition, data);
 
@@ -60,6 +58,7 @@ public class Board : MonoBehaviour
         else
         {
             GameOver();
+            Debug.Log("Game Over");
         }
     }
 

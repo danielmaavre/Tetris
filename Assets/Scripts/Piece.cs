@@ -20,7 +20,7 @@ public class Piece : MonoBehaviour
     private float stepTime;
     private float lockTime;
     private float moveTime;    
-    private bool usedHeld;
+    private bool usedHold;
 
     public void Initialize(Board board, Vector3Int position, TetrominoData data)
     {
@@ -55,10 +55,15 @@ public class Piece : MonoBehaviour
         lockTime += Time.deltaTime;
 
         //Hold piece
-        if (Keyboard.current.hKey.wasPressedThisFrame && !usedHeld)
-        {
-            holdSpace.HoldPiece(this);
-            usedHeld = true;
+        if (Keyboard.current.hKey.wasPressedThisFrame && !usedHold)
+        {          
+
+            holdSpace.HoldPiece(this);  //Saves and holds the new piece
+            board.Clear(this);
+            Vector3Int newSpawnPos = new(-1,position.y,0); //Provisional fix, center x and keep y. TODO: Find an alternative to also keep x
+            board.SpawnPiece(newSpawnPos,holdSpace.isPieceHeld ? holdSpace.oldPiece : null); //Replaces the new piece by the previously held
+            holdSpace.UpdateOldPiece();       
+            usedHold = true;            
         }
 
         //Piece rotation Q: Left E: Right
@@ -136,12 +141,12 @@ public class Piece : MonoBehaviour
         }
 
         board.ClearLines(SpawnNext);
-        usedHeld = false;
+        usedHold = false;
     }
 
     private void SpawnNext()
     {
-        board.SpawnPiece();
+        board.SpawnPiece(board.defaultSpawnPosition);
     }
 
     //Applies the rotation matrix to each piece and rotates its position by 90 degrees

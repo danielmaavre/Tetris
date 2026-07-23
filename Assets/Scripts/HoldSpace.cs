@@ -4,20 +4,29 @@ using UnityEngine.Tilemaps;
 public class HoldSpace : MonoBehaviour
 {
     public Tilemap Tilemap {get; private set;}
-    public TetrominoData  heldPieceData{get; private set;}
+    public TetrominoData oldPiece{get; private set;}
+    private TetrominoData newPiece;
+    public bool isPieceHeld{get; private set;}
     public static HoldSpace holdSpace;
     [SerializeField] Vector3Int spawnPosition;
 
 
     private void Awake() {
         Tilemap = GetComponentInChildren<Tilemap>();    
+        isPieceHeld = false;
     }
 
     public void HoldPiece(Piece piece)
     {
         Tilemap.ClearAllTiles();
-        heldPieceData = piece.data;
-        SetPiece(heldPieceData);
+        newPiece = piece.data;
+        SetPiece(piece.data);                
+    }
+
+    public void UpdateOldPiece()
+    {
+        oldPiece = newPiece;
+        isPieceHeld = true;
     }
 
     private void SetPiece(TetrominoData data)
