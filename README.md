@@ -116,4 +116,4 @@ This project focuses on understanding:
 
 ## Disclaimer
 
-This project is an independent educational implementation inspired by the classic Tetris game. It was developed exclusively for learning purposes and is not affiliated with or endorsed by The Tetris Company.
+This project is an independent educational implementation inspired by the classic Tetris game. It was developed exclusively for learning purposes.
