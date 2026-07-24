@@ -2,8 +2,6 @@
 
 A modern implementation of the classic **Tetris** game built with **Unity** and **C#**.
 
-This project was developed as a learning exercise to practice Unity game development while implementing the core mechanics of one of the most iconic puzzle games ever created.
-
 ---
 
 ## Features
@@ -16,19 +14,18 @@ This project was developed as a learning exercise to practice Unity game develop
 - ⚡ Hard drop
 - 🧱 Collision detection
 - 🧹 Line clearing
-- 📈 Increasing difficulty over time
-- 💀 Game Over detection
-
+- 📈 Leveling system and increasing difficulty over time
 ---
 
 ## Controls
 
 | Key | Action |
 |------|--------|
-| ← / A | Move Left |
-| → / D | Move Right |
-| ↓ / S | Soft Drop |
-| ↑ / W | Rotate |
+| A | Move Left |
+| D | Move Right |
+| S | Soft Drop |
+| W | Rotate |
+| H | Hold Piece |
 | Space | Hard Drop |
 
 ---
@@ -37,7 +34,7 @@ This project was developed as a learning exercise to practice Unity game develop
 
 - Unity
 - C#
-- Visual Studio
+- VS Code
 
 ---
 
@@ -90,11 +87,11 @@ Press **Play** to start the game.
 
 Planned improvements include:
 
-- [ ] Hold piece
+- [x] Hold piece
 - [ ] Next piece preview
-- [ ] Ghost piece
-- [ ] Score system
-- [ ] Level progression
+- [x] Ghost piece
+- [x] Score system
+- [x] Level progression
 - [ ] Sound effects
 - [ ] Music
 - [ ] Main menu
@@ -117,13 +114,6 @@ This project focuses on understanding:
 
 ---
 
-## License
+## Disclaimer
 
-This project is available under the MIT License.
-
----
-
-## Acknowledgements
-
-- Alexey Pajitnov for creating the original **Tetris**.
-- Unity Technologies for the Unity game engine.
+This project is an independent educational implementation inspired by the classic Tetris game. It was developed exclusively for learning purposes and is not affiliated with or endorsed by The Tetris Company.
