@@ -57,6 +57,8 @@ public class Board : MonoBehaviour
         }
         else
         {
+            Debug.Log($"Invalid spawn at {spawnPosition}, blocking tiles at: " +
+                string.Join(", ", Array.ConvertAll(ActivePiece.cells, c => c + spawnPosition)));            
             GameOver();
             Debug.Log("Game Over");
         }

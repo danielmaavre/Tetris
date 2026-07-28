@@ -7,8 +7,8 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 
 public class Piece : MonoBehaviour
-{
-    public Board board {get; private set;}    
+{  
+    public Board board;
     public TetrominoData data {get; private set;}
     public Vector3Int position {get; private set;}
     public Vector3Int[] cells {get; private set;}
@@ -29,8 +29,6 @@ public class Piece : MonoBehaviour
         this.position = position;
         
         rotationIndex = 0;
-        // stepTime = Time.deltaTime;
-        // moveTime = Time.deltaTime;
         lockTime = 0f;
 
         if (cells == null)
@@ -102,14 +100,14 @@ public class Piece : MonoBehaviour
     private void HandleMoveInputs()
     {
         //Horizontal movement a: Left d: Right
-        if (Keyboard.current.aKey.isPressed){
+        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed){
             Move(Vector2Int.left);
-        }else if (Keyboard.current.dKey.isPressed){
+        }else if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed){
             Move(Vector2Int.right);
         }
 
         //Vertical movement
-        if (Keyboard.current.sKey.isPressed){
+        if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed){
             if (Move(Vector2Int.down)){
                 //Updates stepTime to prevent double movement
                 stepTime = Time.deltaTime;
