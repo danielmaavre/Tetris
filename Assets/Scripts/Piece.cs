@@ -54,14 +54,8 @@ public class Piece : MonoBehaviour
 
         //Hold piece
         if (Keyboard.current.hKey.wasPressedThisFrame && !usedHold)
-        {          
-
-            holdSpace.HoldPiece(this);  //Saves and holds the new piece
-            board.Clear(this);
-            Vector3Int newSpawnPos = new(-1,position.y,0); //Provisional fix, center x and keep y. TODO: Find an alternative to also keep x
-            board.SpawnPiece(newSpawnPos,holdSpace.isPieceHeld ? holdSpace.oldPiece : null); //Replaces the new piece by the previously held
-            holdSpace.UpdateOldPiece();       
-            usedHold = true;            
+        { 
+            HoldPiece();
         }
 
         //Piece rotation Q: Left E: Right
@@ -97,6 +91,23 @@ public class Piece : MonoBehaviour
         board.Set(this);        
     }
 
+    private void HoldPiece()
+    {
+        holdSpace.HoldPiece(this);  //Saves and holds the new piece
+        board.Clear(this);    
+        usedHold = true;   
+        Vector3Int newSpawnPos = new(-1,position.y,0); //Provisional fix, center x and keep y. TODO: Find an alternative to also keep x                  
+        if (holdSpace.isPieceHeld)
+        {    
+            
+            board.SpawnPiece(newSpawnPos,holdSpace.oldPiece,holdSpace.isPieceHeld); //Replaces the new piece by the previously held
+            holdSpace.UpdateOldPiece();                                                  
+        }
+        else
+        {
+            board.SpawnPiece(newSpawnPos,NextPiece.preview.oldPiece); //Replaces the new piece by the previously held
+        }         
+    }
     private void HandleMoveInputs()
     {
         //Horizontal movement a: Left d: Right

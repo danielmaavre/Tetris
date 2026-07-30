@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -42,12 +41,17 @@ public class Board : MonoBehaviour
 
     private void Start()
     {
-        SpawnPiece(defaultSpawnPosition);
+        SpawnPiece(defaultSpawnPosition, GenRandomPiece());
+        NextPiece.preview.SetPiecePreview(GenRandomPiece());
     }
 
-    public void SpawnPiece(Vector3Int spawnPosition, TetrominoData? heldPiece = null)
+    public void SpawnPiece(Vector3Int spawnPosition, TetrominoData data , bool isHeldPiece = false)
     {
-        TetrominoData data = heldPiece ?? tetrominoes[UnityEngine.Random.Range(0,tetrominoes.Length)];
+        
+        if (!isHeldPiece)
+        {            
+            NextPiece.preview.SetPiecePreview(GenRandomPiece());
+        }
 
         ActivePiece.Initialize(this, spawnPosition, data);
 
@@ -62,6 +66,12 @@ public class Board : MonoBehaviour
             GameOver();
             Debug.Log("Game Over");
         }
+    }
+
+    private TetrominoData GenRandomPiece()
+    {
+        TetrominoData piece = tetrominoes[UnityEngine.Random.Range(0,tetrominoes.Length)];
+        return piece;
     }
 
     private void GameOver()
