@@ -1,28 +1,47 @@
-using System;
-using NUnit.Framework.Internal;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Tilemaps;
-using UnityEngine.UIElements;
 
+/// <summary>
+/// This class controls the behaviour of the piece currently controlled by the player
+/// </summary>
 public class Piece : MonoBehaviour
 {  
+    //Reference to the game board
     public Board board;
+
+    //Reference to the tetromino being played
     public TetrominoData data {get; private set;}
+
+    //Position of the current piece
     public Vector3Int position {get; private set;}
+
+    //Cells that define the current tetromino
     public Vector3Int[] cells {get; private set;}
+
+    //Index that defines the rotation direction of the piece
     public int rotationIndex {get; private set;}
 
+    //Parameter that controls the speed at which a piece can move horizontally
     [SerializeField] private float moveDelay = 0.15f;
+
+    //Time delay that the game will wait until a piece is locked
     [SerializeField] private float lockDelay = 0.5f;
+
+    //Reference to the holdin area where the held piece will be drawn
     [SerializeField] private HoldSpace holdSpace;
+
+    //Reference to the area where the next piece preview will be drawn
     [SerializeField] private NextPiece nextPiece;
+
+    //Counters used to control if the move and lock delays are done
     private float stepTime;
     private float lockTime;
     private float moveTime;    
+
+    //Flag that allows the player to use the hold action once per piece
     private bool usedHold;
 
+    //Function used to initialize the current piece on the board
     public void Initialize(Board board, Vector3Int position, TetrominoData data)
     {
         this.data = data;
@@ -43,22 +62,22 @@ public class Piece : MonoBehaviour
         }
     }
 
+    //Update function, controls the game flow
     private void Update()
     {
         //Locks the movement of the piece during the line clearing animation
         if (board.IsClearingLines) return;
-
-        // Debug.Log($"Used Hold {usedHold}");
         
+        //Clears the piece's tiles to update its position
         board.Clear(this);
 
         //Allows to adjust the piece before it locks in place
         lockTime += Time.deltaTime;
 
-        //Hold piece
+        //Hold piece action is controlled by the W key and can only be performed once 
+        // before the current piece locks into place
         if (Keyboard.current.hKey.wasPressedThisFrame && !usedHold)
         { 
-            Debug.Log($"Entered Hold Space");
             HoldPiece();
         }
 
@@ -69,7 +88,7 @@ public class Piece : MonoBehaviour
             Rotate(1);
         }     
 
-        //Hard drop
+        //Hard drop controlled by the space bar
         if (Keyboard.current.spaceKey.wasPressedThisFrame){
             HardDrop();
             if (board.IsClearingLines) return;
@@ -95,30 +114,40 @@ public class Piece : MonoBehaviour
         board.Set(this);        
     }
 
+    //Function that controls the hold piece action
     private void HoldPiece()
     {
-        //Provisional fix, center x and keep y. TODO: Find an alternative to also keep x  
+        //Defines the spawning position for the piece based on the current piece position
+        //only uses the current piece's y position to prevent bugs regarding the board boundaries 
+        // (can be improved to use the piece's x position)
         Vector3Int newSpawnPos = new(-1,position.y,0); 
 
         //Saves and holds the new piece
-        holdSpace.HoldPiece(this);  
-        board.Clear(this);    
-        usedHold = true;
-        Debug.Log($"HoldPiecer - usedHold {usedHold}");   
-        
+        holdSpace.HoldPiece(this); 
 
+        //Clears from the board the piece that will be held 
+        board.Clear(this);    
+
+        //Updates the hold flag to prevent the action to be executed again
+        usedHold = true;
+        
+        //Checks if there is already a piece in the holding space
         if (holdSpace.isPieceHeld)
         {    
+            //If so, draws the held piece in the new position
             board.SpawnPiece(newSpawnPos,holdSpace.oldPiece); 
         }
         else
         {
-            // board.SpawnPiece(newSpawnPos,nextPiece.nextPiece);
+            //If there's not a held piece, it behaves as if spawning a new piece
             SpawnNext();
         }    
 
+        //Updates the held piece's information so it can be swapped the next time
         holdSpace.UpdateOldPiece(); 
     }
+
+    //Function that controls the piece's horizontal and vertical movement
     private void HandleMoveInputs()
     {
         //Horizontal movement a: Left d: Right
@@ -128,7 +157,7 @@ public class Piece : MonoBehaviour
             Move(Vector2Int.right);
         }
 
-        //Vertical movement
+        //Vertical movement s key
         if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed){
             if (Move(Vector2Int.down)){
                 //Updates stepTime to prevent double movement
@@ -137,10 +166,9 @@ public class Piece : MonoBehaviour
         }
     }
 
+    //Function that makes the piece step down one tile very time it's called
     private void Step()
-    {
-        // stepTime = Time.time + LevelManager.levelManager.StepDelay;
-
+    {     
         //Steps down a row
         Move(Vector2Int.down);
 
@@ -150,50 +178,66 @@ public class Piece : MonoBehaviour
         }
     }
 
+    //Function in charge of locking the piece into place if the piece is still for longer than the lockDelay parameter
     private void Lock()
     {
-        Debug.Log("Locking Piece");
+        //Clears and sets the same piece to draw it still into place
         board.Clear(this);
         board.Set(this);
 
+        //If there's an active ghost piece, clears it
         if(Ghost.ghostPiece != null)
         {
             Ghost.ghostPiece.Clear();
         }
 
+        //Calls the clear lines function to check if there's any full line to erase, 
+        //sends the SpawnNext function as a callback to spawn a new piece after checking for rows to clear
         board.ClearLines(SpawnNext);
+
+        //After locking the piece into place allows the player to use the hold action again
         usedHold = false;
-        Debug.Log($"Piece Locked - usedHold{usedHold}");
     }
 
+    //Function in charge of determining which piece will spawn next
     public void SpawnNext()
     {
+        //Generates a random tetromino to display as the next piece in the preview area
         TetrominoData newPiece = board.GenRandomPiece();
+
+        //Sets the new piece inside the preview area
         nextPiece.SetPiecePreview(newPiece);
-        
+
+        //Checks if there is a piece held in the preview area
         if (nextPiece != null && (nextPiece.previewPiece.cells?.Length ?? 0) > 0)
         {
-            Debug.Log("Setting the piece preview");
+            //If so, spawns the preview piece into the game board
             board.SpawnPiece(board.defaultSpawnPosition,nextPiece.previewPiece);            
         }
         else
         {
-            Debug.Log("Setting a new random piece");
+            //Otherwise (its the first iteration) spawns a random piece into the board
             board.SpawnPiece(board.defaultSpawnPosition,board.GenRandomPiece());
         }
         
+        //Saves the information of the piece preview so it can be drawn during the next iteration
         nextPiece.UpdatePreviewPiece(newPiece);
     }
 
     //Applies the rotation matrix to each piece and rotates its position by 90 degrees
     private void Rotate(int direction)
     {
+        //Gets the peice's original rotation index
         int originalRotation = rotationIndex;
+
+        //Calculates the new rotation index by adding the direction to the current rotation index
         rotationIndex = Wrap(rotationIndex + direction, 4);
         // Debug.Log(this.rotationIndex);
 
+        //Applies the rotation matrix to the piece
         ApplyRotationMatrix(direction);
 
+        //Checks the piece's wall kicks
         if (!TestWallKicks(rotationIndex, direction))
         {
             rotationIndex = originalRotation;
@@ -201,14 +245,17 @@ public class Piece : MonoBehaviour
         }
     }
 
+    //Function that applies the rotation matrix to the current piece
     private void ApplyRotationMatrix(int direction)
     {
+        //Loops over each cell of the current piece
         for (int i = 0; i < cells.Length; i++)
         {
             Vector3 cell = cells[i];
 
             int x, y;
 
+            //Checks the rotation matrix to be applied depending if its the I/O tetromino or any other
             switch (data.tetromino)
             {
                 case Tetromino.I:
@@ -229,6 +276,7 @@ public class Piece : MonoBehaviour
         }        
     }
 
+    //Applies the wall kick rule to the piece to check if the rotation is possible
     private bool TestWallKicks(int rotationIndex, int rotationDirection)
     {
         int wallkickIdx = GetWallKickIdx(rotationIndex, rotationDirection);
@@ -245,6 +293,7 @@ public class Piece : MonoBehaviour
         return false;
     }
 
+    //Gets the wall kicks that will apply to the tetromino and checks if the new rotation is possible
     private int GetWallKickIdx(int rotationIndex, int rotationDirection)
     {
         int wallkickIdx = rotationIndex * 2;
@@ -256,6 +305,7 @@ public class Piece : MonoBehaviour
         return Wrap(wallkickIdx, data.wallKicks.GetLength(0));
     }
 
+    //Function created to control any possible rotation index for a piece, it should rotate within 4 possible positions
     public int Wrap(int value, int validPositions)
     {
         return ((value % validPositions) + validPositions) % validPositions;
@@ -273,6 +323,8 @@ public class Piece : MonoBehaviour
         Lock();
     }
 
+    //Checks if the horizontal movement is possible.
+    // If not, the piece won't translate
     private bool Move(Vector2Int translation)
     {
         Vector3Int newPosition = position;

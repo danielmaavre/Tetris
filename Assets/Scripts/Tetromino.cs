@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+/// <summary>
+/// Enumerator that lists all the possible tetrominoes
+/// </summary>
 public enum Tetromino
 {
     I,
@@ -12,6 +15,7 @@ public enum Tetromino
     Z,
 }
 
+//Structure defined to control the information contained by a tetromino
 [System.Serializable]
 public struct TetrominoData
 {
