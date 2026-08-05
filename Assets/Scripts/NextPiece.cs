@@ -4,8 +4,8 @@ using UnityEngine.Tilemaps;
 public class NextPiece : MonoBehaviour
 {
     public Tilemap Tilemap {get; private set;}
-    public TetrominoData oldPiece{get; private set;}
-    private TetrominoData nextPiece;
+    public TetrominoData nextPiece{get; private set;}
+    public TetrominoData previewPiece{get; private set;}
     public static NextPiece preview;
     [SerializeField] Vector3Int spawnPosition;
 
@@ -16,14 +16,17 @@ public class NextPiece : MonoBehaviour
 
     public void SetPiecePreview(TetrominoData piece)
     {
+        Debug.Log("Starting SetPiecePreview");
         Tilemap.ClearAllTiles();
-        nextPiece = piece;
+
+        Debug.Log("Setting Next Piece");
         SetPiece(piece);                
     }
 
-    public void UpdateOldPiece()
+    public void UpdatePreviewPiece(TetrominoData piece)
     {
-        oldPiece = nextPiece;
+        Debug.Log("Updating preview");
+        previewPiece = piece;
     }
 
     private void SetPiece(TetrominoData data)
@@ -32,7 +35,7 @@ public class NextPiece : MonoBehaviour
         {
             //Offset the piece position by the actual position of each piece
             Vector3Int tilePosition = (Vector3Int)data.cells[i] + spawnPosition;
-            Debug.Log($"Setting held piece at {tilePosition}");
+            Debug.Log($"Setting piece preview at {tilePosition}");
             Tilemap.SetTile(tilePosition, data.tile);
         }        
     }

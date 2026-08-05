@@ -7,7 +7,6 @@ public class HoldSpace : MonoBehaviour
     public TetrominoData oldPiece{get; private set;}
     private TetrominoData newPiece;
     public bool isPieceHeld{get; private set;}
-    public static HoldSpace holdSpace;
     [SerializeField] Vector3Int spawnPosition;
 
 

@@ -41,22 +41,18 @@ public class Board : MonoBehaviour
 
     private void Start()
     {
-        SpawnPiece(defaultSpawnPosition, GenRandomPiece());
-        NextPiece.preview.SetPiecePreview(GenRandomPiece());
+        ActivePiece.SpawnNext();
+        // SpawnPiece(defaultSpawnPosition, GenRandomPiece());
     }
 
-    public void SpawnPiece(Vector3Int spawnPosition, TetrominoData data , bool isHeldPiece = false)
+    public void SpawnPiece(Vector3Int spawnPosition, TetrominoData data)
     {
-        
-        if (!isHeldPiece)
-        {            
-            NextPiece.preview.SetPiecePreview(GenRandomPiece());
-        }
-
+        Debug.Log("Initialize Piece");
         ActivePiece.Initialize(this, spawnPosition, data);
 
         if(IsValidPosition(ActivePiece, spawnPosition))
         {
+            Debug.Log("Valid Position");
             Set(ActivePiece);
         }
         else
@@ -68,7 +64,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    private TetrominoData GenRandomPiece()
+    public TetrominoData GenRandomPiece()
     {
         TetrominoData piece = tetrominoes[UnityEngine.Random.Range(0,tetrominoes.Length)];
         return piece;

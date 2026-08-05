@@ -17,6 +17,7 @@ public class Piece : MonoBehaviour
     [SerializeField] private float moveDelay = 0.15f;
     [SerializeField] private float lockDelay = 0.5f;
     [SerializeField] private HoldSpace holdSpace;
+    [SerializeField] private NextPiece nextPiece;
     private float stepTime;
     private float lockTime;
     private float moveTime;    
@@ -46,6 +47,8 @@ public class Piece : MonoBehaviour
     {
         //Locks the movement of the piece during the line clearing animation
         if (board.IsClearingLines) return;
+
+        // Debug.Log($"Used Hold {usedHold}");
         
         board.Clear(this);
 
@@ -55,6 +58,7 @@ public class Piece : MonoBehaviour
         //Hold piece
         if (Keyboard.current.hKey.wasPressedThisFrame && !usedHold)
         { 
+            Debug.Log($"Entered Hold Space");
             HoldPiece();
         }
 
@@ -93,20 +97,27 @@ public class Piece : MonoBehaviour
 
     private void HoldPiece()
     {
-        holdSpace.HoldPiece(this);  //Saves and holds the new piece
+        //Provisional fix, center x and keep y. TODO: Find an alternative to also keep x  
+        Vector3Int newSpawnPos = new(-1,position.y,0); 
+
+        //Saves and holds the new piece
+        holdSpace.HoldPiece(this);  
         board.Clear(this);    
-        usedHold = true;   
-        Vector3Int newSpawnPos = new(-1,position.y,0); //Provisional fix, center x and keep y. TODO: Find an alternative to also keep x                  
+        usedHold = true;
+        Debug.Log($"HoldPiecer - usedHold {usedHold}");   
+        
+
         if (holdSpace.isPieceHeld)
         {    
-            
-            board.SpawnPiece(newSpawnPos,holdSpace.oldPiece,holdSpace.isPieceHeld); //Replaces the new piece by the previously held
-            holdSpace.UpdateOldPiece();                                                  
+            board.SpawnPiece(newSpawnPos,holdSpace.oldPiece); 
         }
         else
         {
-            board.SpawnPiece(newSpawnPos,NextPiece.preview.oldPiece); //Replaces the new piece by the previously held
-        }         
+            // board.SpawnPiece(newSpawnPos,nextPiece.nextPiece);
+            SpawnNext();
+        }    
+
+        holdSpace.UpdateOldPiece(); 
     }
     private void HandleMoveInputs()
     {
@@ -141,6 +152,7 @@ public class Piece : MonoBehaviour
 
     private void Lock()
     {
+        Debug.Log("Locking Piece");
         board.Clear(this);
         board.Set(this);
 
@@ -151,11 +163,26 @@ public class Piece : MonoBehaviour
 
         board.ClearLines(SpawnNext);
         usedHold = false;
+        Debug.Log($"Piece Locked - usedHold{usedHold}");
     }
 
-    private void SpawnNext()
+    public void SpawnNext()
     {
-        board.SpawnPiece(board.defaultSpawnPosition);
+        TetrominoData newPiece = board.GenRandomPiece();
+        nextPiece.SetPiecePreview(newPiece);
+        
+        if (nextPiece != null && (nextPiece.previewPiece.cells?.Length ?? 0) > 0)
+        {
+            Debug.Log("Setting the piece preview");
+            board.SpawnPiece(board.defaultSpawnPosition,nextPiece.previewPiece);            
+        }
+        else
+        {
+            Debug.Log("Setting a new random piece");
+            board.SpawnPiece(board.defaultSpawnPosition,board.GenRandomPiece());
+        }
+        
+        nextPiece.UpdatePreviewPiece(newPiece);
     }
 
     //Applies the rotation matrix to each piece and rotates its position by 90 degrees

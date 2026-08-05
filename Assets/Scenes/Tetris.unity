@@ -4871,6 +4871,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1912292844}
   - component: {fileID: 1912292843}
+  - component: {fileID: 1912292845}
   m_Layer: 0
   m_Name: Next
   m_TagString: Untagged
@@ -4907,6 +4908,19 @@ Transform:
   - {fileID: 192006759}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1912292845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1912292842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c2f17e5e4195c94fba5414d419dddee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NextPiece
+  spawnPosition: {x: 9, y: 1, z: 0}
 --- !u!1 &2024020250
 GameObject:
   m_ObjectHideFlags: 0
@@ -4938,10 +4952,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40f6a4fd247f9354e9d00feed7e8adb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Piece
-  board: {fileID: 0}
+  board: {fileID: 2024020252}
   moveDelay: 0.1
   lockDelay: 0.5
   holdSpace: {fileID: 419586532}
+  nextPiece: {fileID: 1912292845}
 --- !u!114 &2024020252
 MonoBehaviour:
   m_ObjectHideFlags: 0
