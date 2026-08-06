@@ -10,7 +10,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentLevelTMP;
 
     //Variable that defines the base amount of points required to level up
-    [SerializeField] private int baseLevelupPoints = 800;
+    [SerializeField] private int baseRowsToLevelUp = 10;
 
     //Parameter that defines the step delay, it will decrease as the player levels up
     public float StepDelay{get; private set;}
@@ -20,6 +20,12 @@ public class LevelManager : MonoBehaviour
 
     //Inscance of the level manager
     public static LevelManager levelManager;
+
+    //Cleared rows counter
+    private int totalRowsCleared = 0;
+
+    //Rows required to level up
+    private int requiredRows;
     
     //Awake function, starts the level information
     private void Awake()
@@ -27,7 +33,8 @@ public class LevelManager : MonoBehaviour
         currentLevel = 1;
         StepDelay = 1;
 
-        UpdateCurrentLevel(currentLevel);
+        SetCurrentLevelGUI(currentLevel);
+        CalcRequiredRows();
 
         if(levelManager == null){
             levelManager = this;
@@ -38,24 +45,36 @@ public class LevelManager : MonoBehaviour
     }
 
     //Checks if the current score is enough to level up
-    public void LevelUp(int currentScore)
+    public void LevelUp(int rowsCleared)
     {
-        //The current condition to level up is for the player to 
-        //have a total score equal to the current level times the base points
-        if (currentScore >= (baseLevelupPoints*currentLevel))
+        //Adds the amount of rows cleared to the total
+        UpdateRowsCleared(rowsCleared);
+
+        //Validates if the level up condition was met
+        if (totalRowsCleared >= requiredRows)
         {
-            currentLevel++;
-            UpdateCurrentLevel(currentLevel);
-            Debug.Log($"Current level {currentLevel}");
-            UpdateStepDelay();            
-        }                 
+            //Adds 1 to the current level
+            currentLevel++; 
+
+            //In case of leveling up, resets the amount of rows cleared
+            UpdateRowsCleared(rowsCleared, true);
+
+            //Updates the level up requirement
+            CalcRequiredRows(); 
+
+            //Updates the level on screen
+            SetCurrentLevelGUI(currentLevel);
+
+            //Updates the piece falling speed
+            UpdateStepDelay();                          
+        }              
     }
 
     //Rests the current level every time the game ends
     public void LevelReset()
     {
         currentLevel = 1;
-        UpdateCurrentLevel(currentLevel);
+        SetCurrentLevelGUI(currentLevel);
         UpdateStepDelay();
     }
 
@@ -67,8 +86,25 @@ public class LevelManager : MonoBehaviour
     }
 
     //Updates the current level every time the player levels up
-    private void UpdateCurrentLevel(int level)
+    private void SetCurrentLevelGUI(int level)
     {
         currentLevelTMP.text = level.ToString();
+    }
+
+    private void CalcRequiredRows()
+    {
+        requiredRows = baseRowsToLevelUp * currentLevel;
+    }
+
+    private void UpdateRowsCleared(int rows, bool leveledUp = false)
+    {
+        if (leveledUp)
+        {
+            totalRowsCleared -= requiredRows;
+        }
+        else
+        {
+            totalRowsCleared += rows;
+        }
     }
 }

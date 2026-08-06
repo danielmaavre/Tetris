@@ -56,13 +56,12 @@ public class ScoreManager : MonoBehaviour
         }
                 
         //Adds to the score the amount of points earned multiplied by the current level
-        score += pointsEarned * (level + 1);
+        score += pointsEarned * level;
+
+        Debug.Log($"Cleared {rowsCleared} rows. {pointsEarned*level} points earned, current score {score}");
 
         //Updates the score inside the UI
         UpdateScoreUI();
-
-        //Checks if the current score is enough to level up
-        LevelManager.levelManager.LevelUp(score);
     }
 
     //Resets the score after a game over

@@ -50,7 +50,7 @@ public class HoldSpace : MonoBehaviour
         {
             //Offset the piece position by the actual position of each piece
             Vector3Int tilePosition = (Vector3Int)data.cells[i] + spawnPosition;
-            Debug.Log($"Setting held piece at {tilePosition}");
+            // Debug.Log($"Setting held piece at {tilePosition}");
             Tilemap.SetTile(tilePosition, data.tile);
         }        
     }

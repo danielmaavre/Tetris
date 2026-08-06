@@ -90,8 +90,8 @@ public class Board : MonoBehaviour
         // Otherwise triggers the game over function to end the game
         else
         {
-            Debug.Log($"Invalid spawn at {spawnPosition}, blocking tiles at: " +
-                string.Join(", ", Array.ConvertAll(ActivePiece.cells, c => c + spawnPosition)));            
+            // Debug.Log($"Invalid spawn at {spawnPosition}, blocking tiles at: " +
+            //     string.Join(", ", Array.ConvertAll(ActivePiece.cells, c => c + spawnPosition)));            
             GameOver();
             Debug.Log("Game Over");
         }
@@ -186,6 +186,12 @@ public class Board : MonoBehaviour
                 fullRows.Add(row);            
         }
 
+        //Updates the player score. The amount of points depends on the amount of rows cleared
+        ScoreManager.scoreManager.AddScore(LevelManager.levelManager.currentLevel, fullRows.Count);
+
+        //Checks if the current score is enough to level up
+        LevelManager.levelManager.LevelUp(fullRows.Count);        
+
         //Checks if any full row was found
         if (fullRows.Count > 0)
         {
@@ -193,8 +199,6 @@ public class Board : MonoBehaviour
             //Passes down the onComplete callback to be executed at the end of the clearing animation
             StartCoroutine(ClearLinesRoutine(fullRows, boardBounds, onComplete));
 
-            //Updates the player score. The amount of points depends on the amount of rows cleared
-            ScoreManager.scoreManager.AddScore(LevelManager.levelManager.currentLevel, fullRows.Count);
         } else
         {
             //If there are no rows to clear, executes the input action. 

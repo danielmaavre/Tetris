@@ -342,6 +342,4 @@ public class Piece : MonoBehaviour
 
         return isValid;
     }
-
-
 }
